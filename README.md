@@ -60,7 +60,15 @@ App Servie PHP 8.2 版本直接支持 GD 库，无需安装。
 
 ![注册 CDN 服务为 Azure resource provider](doc/cdn-register.webp)
 
+创建CDN实例，在 Offering 页点 Explore other offerings，再点 Azure CDN Standard from Microsoft (classic) 。
+![创建 Azure CDN 1](doc/azure-cdn1.png)
+再按提示选择订阅、资源组，填写 CDN 实例名称等即可。
+
+![创建 Azure CDN 2](doc/azure-cdn2.png)
+
 https://docs.azure.cn/zh-cn/cdn/cdn-how-to-use
+
+
 
 ## 添加自定义域名
 
