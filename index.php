@@ -8,6 +8,7 @@ use MicrosoftAzure\Storage\Blob\Models\GetBlobOptions;
 // 创建 BlobRestProxy 对象
 $connectionString = getenv("AZURE_BLOB_CONNECTION");
 $blobContainerName = getenv("AZURE_BLOB_CONTAINER");
+error_log("connectionString: " . $connectionString);
 $blobClient = BlobRestProxy::createBlobService($connectionString);
 
 // 处理请求
@@ -18,7 +19,10 @@ $height = isset($_REQUEST['height']) ? $_REQUEST['height'] :'';
 $flip = isset($_REQUEST['flip']) ? $_REQUEST['flip'] :'';
 $crop = isset($_REQUEST['crop']) ? $_REQUEST['crop'] :'';
 $rotate = isset($_REQUEST['rotate']) ? $_REQUEST['rotate'] :'';
-
+$supportedOutputTypes = array('png', 'jpeg', 'gif', 'webp');
+$outputType = isset($_REQUEST['outputtype']) && in_array($_REQUEST['outputtype'], $supportedOutputTypes) ? $_REQUEST['outputtype'] :'png'; 
+$outputImageMethod='image' . $outputType;
+$outputImageHeader='Content-Type: image/' . $outputType;
 // 从 Azure Blob Storage 中读取图像文件内容，文件名是 $filename
 try {
     $getBlobResult = $blobClient->getBlob($blobContainerName, $filename);
@@ -100,12 +104,12 @@ try {
 
     // 读取调整大小后的图像内容 
     ob_start();
-    imagejpeg($outputImage);
+    $outputImageMethod($outputImage);
     $imageData = ob_get_contents();
     ob_end_clean();
 
     // 把读取到的内容输出到浏览器
-    header('Content-Type: image/jpeg');
+    header($outputImageHeader);
     echo $imageData;
 } catch (ServiceException $e) {
     $code = $e->getCode();
