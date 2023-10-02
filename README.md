@@ -51,7 +51,7 @@ az webapp deploy -g $RESOURCE_GROUP -n $WEBAPP_NAME --src-path deploy.zip --type
 ```
 App Servie PHP 8.2 版本直接支持 GD 库，无需安装。
 
-到此，我们已经完成了一个简单的图片处理应用的开发和部署，可以在浏览器中访问 `https://my_app_service_name.azurewebsites.net/?filename=Microsoft.png&width=100&height=100` 查看效果。更多图片处理的效果及参数，请参见[源码](index.php)。
+到此，我们已经完成了一个简单的图片处理应用的开发和部署，可以在浏览器中访问 `https://my_app_service_name.azurewebsites.net/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。更多图片处理的效果及参数，请参见[源码](index.php)。
 
 接下来就是配置 CDN 服务，让图片处理应用能够通过 CDN 服务提供的功能，实现图片处理的加速。
 
@@ -62,13 +62,21 @@ App Servie PHP 8.2 版本直接支持 GD 库，无需安装。
 
 创建CDN实例，在 Offering 页点 Explore other offerings，再点 Azure CDN Standard from Microsoft (classic) 。
 ![创建 Azure CDN 1](doc/azure-cdn1.png)
-再按提示选择订阅、资源组，填写 CDN 实例名称等即可。
+再按提示选择订阅、资源组，填写 CDN profile名称等即可。
 
 ![创建 Azure CDN 2](doc/azure-cdn2.png)
 
-https://docs.azure.cn/zh-cn/cdn/cdn-how-to-use
+CDN profile 创建好后，添加一个 Endpoint。在 CDN Profile 的 overview 页，右边主窗格点 +Endpoint 按钮，按提示填写 Endpoint 名称如`my_cdn_endpoint`、源站类型选择 `Web App`。
 
+Origin hostname 从下拉菜单中选择前面部署好的 App Service 实例，比如 `my_app_service_name.azurewebsites.net`。其它的保持默认，点击最底下的 Add 按钮。
 
+![创建 Azure CDN 3](doc/azure-cdn3.png)
+
+现在我们的图片处理都是通过参数来控制的，所以需要在 CDN Endpoint 的配置里把每个查询字符串的参数分别缓存。在 CDN Endpoint 的左侧导航菜单找到 Setting 下的 Caching Rules，右边主窗格点 Query string caching behavior菜单选择 Cache every unique URL，点击最上面的 Save 按钮。
+
+![创建 Azure CDN 4](doc/azure-cdn4.png)
+
+到此，CDN 服务已经配置好了，可以在浏览器中访问 `https://my_cdn_endpoint.azureedge.net/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。
 
 ## 添加自定义域名
 
