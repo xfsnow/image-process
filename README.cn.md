@@ -51,10 +51,6 @@ az webapp deploy -g $RESOURCE_GROUP -n $WEBAPP_NAME --src-path deploy.zip --type
 ```
 App Servie PHP 8.2 版本直接支持 GD 库，无需安装。
 
-到此，我们已经完成了一个简单的图片处理应用的开发和部署，可以在浏览器中访问 `https://my_app_service_name.azurewebsites.net/?filename=Microsoft.png&width=100&height=100` 查看效果。更多图片处理的效果及参数，请参见[源码](index.php)。
-
-接下来就是配置 CDN 服务，让图片处理应用能够通过 CDN 服务提供的功能，实现图片处理的加速。
-
 # 配置 CDN 服务
 https://docs.azure.cn/zh-cn/cdn/cdn-how-to-use
 
