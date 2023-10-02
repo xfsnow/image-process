@@ -56,6 +56,10 @@ App Servie PHP 8.2 版本直接支持 GD 库，无需安装。
 接下来就是配置 CDN 服务，让图片处理应用能够通过 CDN 服务提供的功能，实现图片处理的加速。
 
 # 配置 CDN 服务
+先确认 CDN 服务已经注册为 resource provider。先到订阅的 Settings 找到 Resource provider，然后搜索 CDN，如果没有找到，点击 Register 按钮注册。
+
+![注册 CDN 服务为 Azure resource provider](doc/cdn-register.webp)
+
 https://docs.azure.cn/zh-cn/cdn/cdn-how-to-use
 
 ## 添加自定义域名
