@@ -18,7 +18,6 @@
 
 ![获取 Blob 存储容器的连接字符串](doc/blob-connection.png)
 
-
 # 本地开发
 此应用开始时使用的是 PHP 8.2.1，需要启用 GD 扩展用于图片处理。使用 PHP Composer 安装 microsoft/azure-storage-blob。
 
@@ -76,9 +75,32 @@ Origin hostname 从下拉菜单中选择前面部署好的 App Service 实例，
 
 ![创建 Azure CDN 4](doc/azure-cdn4.png)
 
+配置 CDN 的 Rules engine，这里使用简单的图片缓存 1小时的规则。在 Setting 下点击 Rules Engine，在 Global 右边点击 + Add action，在下拉菜单中选择 Cache Expiration。
+
+在 Cache behavior 菜单选择 Set if missing，然后 Days 填写 1，然后点击上面的 Save 按钮即可。
+
+![配置 CDN 的 Rules engine](doc/azure-cdn5.png)
+
 到此，CDN 服务已经配置好了，可以在浏览器中访问 `https://my_cdn_endpoint.azureedge.net/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。
 
 ## 添加自定义域名
+
+要添加自定义域名，首先要在 DNS 服务商那里添加一个 CNAME 记录，指向 CDN Endpoint 的自定义域名。比如我在 阿里云的域名解析控制台添加了一个 CNAME 记录，指向 `my_cdn_endpoint.azureedge.net`。
+
+然后回到 Azure CDN Endpoint 的配置里，找到 Custom domains，点击 +Custom domain 按钮，按提示填写自定义域名，点击最底下的 Add 按钮。
+
+![添加 CDN 的自定义域名](doc/azure-cdn6.png)
+
+新添加上的自定义域名，其 Custom HTTPS 状态为 disabled。点击这条记录，进入 Custom domain HTTPS 管理页。
+点击 On 按钮；
+Certificate management type 选择 CDN managed；
+Minimum TLS version 选择 TLS 1.2。
+点击上面的 Save 按钮。默认情况下 Azure 会托管地为自定义域名申请一个证书，这个过程可能需要几分钟时间，请耐心等待下成的状态逐个变成完成。
+
+![配置 CDN 的自定义域名](doc/azure-cdn6.png)
+
+到此，我们的图片处理应用已经可以通过自定义域名访问了，比如我在浏览器中访问 `https://my_cdn_domain/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。
+
 
 ## HTTPS 证书管理
 必须通过 Azure Key Vault 管理，先要在 Azure AD 里注册一个应用，记下AAD应用的 Application (client) ID。创建一个应用的 Secrect，记下其 Secrect Value。
