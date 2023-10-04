@@ -102,7 +102,7 @@ Minimum TLS version 选择 TLS 1.2。
 到此，我们的图片处理应用已经可以通过自定义域名访问了，比如我在浏览器中访问 `https://my_cdn_domain/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。
 
 # Azure 中国区域的CDN配置
-Azure 中国区域和 Azure 海外区域的 CDN 服务有一些差异，主要是在证书管理上。Azure 中国区域的 CDN 服务不支持自定义域名的证书管理，只能通过 Azure Key Vault 管理证书。所以我们需要先在 Azure Key Vault 里创建一个证书，然后在 CDN Endpoint 的配置里选择现有证书。
+Azure 中国区域和 Azure 海外区域的 CDN 服务有一些差异，主要是在证书管理上。Azure 中国区域的 CDN 服务不支持自定义域名的证书管理，只能通过 Azure Key Vault 管理证书。所以我们需要先在 Azure Key Vault 里创建一个证书，然后在 CDN Endpoint 的配置里选择现有证书。前述的 Blob Storage 和 App Service 的配置不变。
 
 ## 在 Microsoft Entra ID 中注册一个应用
 
@@ -112,13 +112,43 @@ Supported account types 选择 Accounts in this organizational directory only。
 
 ![在 Microsoft Entra ID 中注册一个应用](doc/cn-cdn1.png)
 
-必须通过 Azure Key Vault 管理，先要在 Azure AD 里注册一个应用，记下AAD应用的 Application (client) ID。创建一个应用的 Secrect，记下其 Secrect Value。
+注册好的应用点击到 Overview 页，记录下 Application (client) ID。
 
-创建 Key Vault，在 Access Policy 里给 AAD 应用赋权，
-Key Permissions
-Secret Permissions
-Certificate Permissions
-都要选中。
+然后点击左侧导航链接的 Certificates & secrets，点击 New client secret 按钮，按提示填写 Secret description，Expires 选择 730 days，点击 Add 按钮。
+
+![给AAD应用添加 secret](doc/cn-cdn2.png)
+添加成功后，立刻在其 Value 处点击复制图标，把 Secret value 复制到剪贴板。注意这个 Secret value 只会显示一次，所以一定要立刻复制保存好。
+
+![给AAD应用添加 secret](doc/cn-cdn3.png)
+
+## 在 Azure Key Vault 里创建一个证书
+参考官方文档[创建一个 Key Vault](https://docs.azure.cn/zh-cn/key-vault/general/quick-create-portal)，然后[上传一个用于 CDN 域名的证书官方文档](https://docs.microsoft.com/azure/key-vault/certificates/quick-create-portal#create-a-certificate)。
+
+## 在 Key Vault 给 Entra 应用赋权
+
+在 Key Vault 左侧导航链接点击 Access Policies，点击 + Create 按钮，在 Create an access policy 页把 Key Permissions、Secret Permissions、Certificate Permissions 都选中，然后点击 Next 按钮。
+
+![设置 Access Policies](doc/cn-cdn4.png)
+
+在 2 Principal 页点击 Select principal 按钮，然后在搜索框中输入应用名称，比如“CDN HTTPS”，然后点击搜索结果中的应用名称，点击 Select 按钮。然后点击 Next 按钮。
+
+![选择 principal](doc/cn-cdn5.png)
+
+Application 页不用修改，直接点击 Review + create 按钮，然后点击 Create 按钮。
+
+回到 Key Vault 的 Overview 页，记录下 Vault URI。
+
+## 配置 CDN Profile
+创建 CDN Profile 的操作和海外 Azure 相同，添加 Endpoint 的操作不相同。点击 + Endpoint 按钮，按提示填写 Custom domain 、ICP number和Origin。
+
+Acceleration type 选择 Web acceleration，Origin domain type 选择 Web App，Origin domain 的下拉菜单选择已经部署好的 App Service。点击 App 按钮。
+
+![创建 CDN Endpoint](doc/cn-cdn6.png)
+
+与海外 Azure 不同之处，在创建 CDN Profile 后，需要点击主窗格的 Manage 按钮。
+
+![打开 Manage](doc/cn-cdn7.png)
+
 
 回到 CDN 控制台，填写
 密钥保管库 DNS 名称 => Key Vault Overview 页的 Vault URI
