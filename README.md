@@ -97,7 +97,7 @@ Certificate management type 选择 CDN managed；
 Minimum TLS version 选择 TLS 1.2。
 点击上面的 Save 按钮。默认情况下 Azure 会托管地为自定义域名申请一个证书，这个过程可能需要几分钟时间，请耐心等待下成的状态逐个变成完成。
 
-![配置 CDN 的自定义域名](doc/azure-cdn6.png)
+![配置 CDN 的自定义域名](doc/azure-cdn7.png)
 
 到此，我们的图片处理应用已经可以通过自定义域名访问了，比如我在浏览器中访问 `https://my_cdn_domain/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。
 
