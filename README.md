@@ -139,26 +139,30 @@ Application 页不用修改，直接点击 Review + create 按钮，然后点击
 回到 Key Vault 的 Overview 页，记录下 Vault URI。
 
 ## 配置 CDN Profile
-创建 CDN Profile 的操作和海外 Azure 相同，添加 Endpoint 的操作不相同。点击 + Endpoint 按钮，按提示填写 Custom domain 、ICP number和Origin。
+创建 CDN Profile 的操作和海外 Azure 相同，也需要先到自己的 DNS 解析处添加 CNAME 记录，把自定义域名指向 CDN Endpoint 的自定义域名。之后添加 Endpoint 的操作不相同。点击 + Endpoint 按钮，按提示填写 Custom domain 、ICP number和Origin。
 
 Acceleration type 选择 Web acceleration，Origin domain type 选择 Web App，Origin domain 的下拉菜单选择已经部署好的 App Service。点击 App 按钮。
 
 ![创建 CDN Endpoint](doc/cn-cdn6.png)
 
-与海外 Azure 不同之处，在创建 CDN Profile 后，需要点击主窗格的 Manage 按钮。
+与海外 Azure 不同之处，在创建 CDN Profile 后，需要点击主窗格的 Manage 按钮去继续配置自定义域名的 SSL 证书。
 
 ![打开 Manage](doc/cn-cdn7.png)
 
+点击左侧导航菜单最下面的“配置”，在主窗格中密钥保管库 DNS 名称填写前面记录的 Vault URI，Azure Active Directory 客户端 ID 填写前面记录的 Application (client) ID，Azure Active Directory 密码填写前面记录的 Secret value，然后点击 Save 按钮。
 
-回到 CDN 控制台，填写
-密钥保管库 DNS 名称 => Key Vault Overview 页的 Vault URI
-Azure Active Directory 客户端 ID => AAD应用的 Application (client) ID
-Azure Active Directory 密码 => AAD应用的 Secrect Value
+![配置 CDN 的密钥保管库](doc/cn-cdn8.png)
 
-证书管理里
-选择现有证书
+通过上述配置，CDN 服务就可以从 Key Vault 里获取证书了。然后点击左侧导航菜单“安全管理”下点击“证书管理”，点击 “+添加一张 SSL 证书”按钮。按提示填写名称。
+在证书源中选择“使用已有证书”。
+在证书的下拉菜单中选择 CDN 域名需要Key Vault中保存的证书。
+绑定域名的下拉菜单中选择“全部”。最后点击下面的“创建”按钮。
 
-更多图片处理功能
+![配置 CDN 的证书](doc/cn-cdn9.png)
 
-文件不存在的检测
-图片路径放到REQUEST_URI上。
+这里，再点击左侧导航菜单中的“域名管理”，可以看到自定义域名的“是否启用 HTTPS”为“是”，表示 SSL 证书已配置成功。
+
+# TODO
+1. 更多图片处理功能
+2. 文件不存在的检测
+3. 图片路径和图片处理参数都放到REQUEST_URI上。
