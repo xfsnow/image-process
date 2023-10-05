@@ -1,33 +1,32 @@
-# 响应式图片处理
+# Responsive Image Processing
 
-在开发网络应用时，我们经常会把原始图片保存起来，然后生成各种尺寸的缩略图，以及对图片进行翻转、裁剪和旋转等简单的处理。这种使用场景非常常见，以至于主流的云平台都提供了 PaaS 服务，其基本原理是基于 CDN 服务增加图片处理的逻辑，通过不同参数配合实现不同的图片处理功能。比如 Azure 中国区域的 CDN 就提供了这样的功能——[Azure CDN 图片处理](https://docs.azure.cn/zh-cn/cdn/cdn-image-processing)。
+When developing web applications, we often save the original images and then generate various sizes of thumbnails, as well as perform simple operations such as flipping, cropping, and rotating on the images. This use case is very common, so much so that mainstream cloud platforms provide PaaS services that add image processing logic based on CDN services, achieving different image processing functions through different parameters. For example, the CDN service in Azure China region provides such a feature - [Azure CDN Image Processing](https://docs.azure.cn/zh-cn/cdn/cdn-image-processing).
 
-遗憾的是 Azure 海外区域还没有这个托管服务，不过结合已有的托管服务，实现一套这样的图片处理方案非常方便，尤其是使用 [Azure App Service](https://azure.microsoft.com/products/app-service/) 作为核心的计算服务，不仅[支持各种主流开发语言](https://learn.microsoft.com/en-us/azure/app-service/overview#built-in-languages-and-frameworks)，还内置了常见的扩展，开发图片处理的小应用就更加轻松了。
+Unfortunately, Azure overseas regions do not yet have this managed service, but it is very convenient to implement such an image processing solution by combining existing managed services, especially using [Azure App Service](https://azure.microsoft.com/products/app-service/) as the core computing service, which not only [supports various mainstream development languages](https://learn.microsoft.com/en-us/azure/app-service/overview#built-in-languages-and-frameworks), but also comes with common extensions, making it even easier to develop small image processing applications.
 
-此方案整体架构图非常简洁。
+The overall architecture of this solution is very simple.
 
-![图片处理整体架构图](doc/image-process-arch.png)
+![Architecture diagram of image processing](doc/image-process-arch.png)
 
-# 准备一个 Blob 存储容器
+# Prepare a Blob Storage Container
 
-上传的原始图片保存在 Azure Blob 存储中，参考[官方文档创建一个 Blob 存储容器](https://learn.microsoft.com/azure/storage/blobs/storage-quickstart-blobs-portal#create-a-container)，这里不再赘述。把创建好的Blob 存储容器名称记录下来，保存为一个环境变量 `AZURE_BLOB_CONTAINER`。
+The uploaded original images are stored in Azure Blob Storage. Refer to the [official documentation to create a Blob Storage container](https://learn.microsoft.com/azure/storage/blobs/storage-quickstart-blobs-portal#create-a-container), which will not be repeated here. Record the name of the created Blob Storage container and save it as an environment variable `AZURE_BLOB_CONTAINER`.
 
-然后向这个存储容器中[上传几个图片文件](https://learn.microsoft.com/azure/storage/blobs/storage-quickstart-blobs-portal#upload-a-block-blob)，比如我上传了一个名为 Microsoft.png 的图片文件，供后续开发演示用。
+Then upload a few image files to this storage container, as described in [upload a block blob](https://learn.microsoft.com/azure/storage/blobs/storage-quickstart-blobs-portal#upload-a-block-blob), for example, I uploaded an image file named Microsoft.png for later development demonstration.
 
-把 Blob 存储容器的连接字符串记录下来，在存储账户的 Security + networking 下找到 Access keys，主窗格里的 key1 下面的 Connection string 点击 Show 按钮，再点击复制图标，把连接字符串复制到剪贴板，然后保存为一个环境变量 `AZURE_BLOB_CONNECTION`。后续供图片处理的应用使用。
+Record the connection string of the Blob Storage container. In the Security + networking of the storage account, find Access keys, click the Show button under key1 in the main pane, then click the copy icon to copy the connection string to the clipboard, and save it as an environment variable `AZURE_BLOB_CONNECTION` for use by the image processing application later.
 
-![获取 Blob 存储容器的连接字符串](doc/blob-connection.png)
+![Get the connection string of the Blob Storage container](doc/blob-connection.png)
 
-# 本地开发
-此应用开始时使用的是 PHP 8.2.1，需要启用 GD 扩展用于图片处理。使用 PHP Composer 安装 microsoft/azure-storage-blob。
+# Local Development
+This application initially uses PHP 8.2.1 and requires the GD extension for image processing. Use PHP Composer to install microsoft/azure-storage-blob.
 
-把当前源码库 clone 到本地后，
-```shell
+After cloning the current source code repository to your local machine,
+```sh
 cd image-process
 php -S localhost:8000
 ```
-即可运行本地测试站点。
-在浏览器中打开 `http://localhost:8000/?filename=Microsoft.png&width=100&height=100` 即可看到图片处理的效果。
+to run the local test site. Open `http://localhost:8000/?filename=Microsoft.png&width=100&height=100` in a browser to see the effect of image processing.
 
 # App Service 部署
 
