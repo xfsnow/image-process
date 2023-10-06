@@ -102,7 +102,9 @@ Minimum TLS version 选择 TLS 1.2。
 到此，我们的图片处理应用已经可以通过自定义域名访问了，比如我在浏览器中访问 `https://my_cdn_domain/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。
 
 # Azure 中国区域的CDN配置
-Azure 中国区域和 Azure 海外区域的 CDN 服务有一些差异，主要是在证书管理上。Azure 中国区域的 CDN 服务不支持自定义域名的证书管理，只能通过 Azure Key Vault 管理证书。所以我们需要先在 Azure Key Vault 里创建一个证书，然后在 CDN Endpoint 的配置里选择现有证书。前述的 Blob Storage 和 App Service 的配置不变。
+Azure 中国区域和 Azure 海外区域的 CDN 服务有一些差异，主要是在证书管理上。Azure 中国区域的 CDN 服务不支持自定义域名的证书管理，只能通过 Azure Key Vault 管理证书。所以我们需要先在 Azure Key Vault 里创建一个证书，然后在 CDN Endpoint 的配置里选择现有证书。前述的 Blob Storage 和 App Service 的配置不变。整体架构图稍微复杂一点。
+
+![Azure 中国区域的架构图](doc/image-process-cn-arch.png)
 
 ## 在 Microsoft Entra ID 中注册一个应用
 
@@ -163,6 +165,7 @@ Acceleration type 选择 Web acceleration，Origin domain type 选择 Web App，
 这里，再点击左侧导航菜单中的“域名管理”，可以看到自定义域名的“是否启用 HTTPS”为“是”，表示 SSL 证书已配置成功。
 
 # TODO
-1. 更多图片处理功能
-2. 文件不存在的检测
-3. 图片路径和图片处理参数都放到REQUEST_URI上。
+1. 把 AAD 和Key Vault 画进架构图
+2. 更多图片处理功能
+3. 文件不存在的检测
+4. 图片路径和图片处理参数都放到REQUEST_URI上。

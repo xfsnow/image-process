@@ -104,7 +104,9 @@ Click the Save button above. By default, Azure will host a certificate for the c
 At this point, our image processing application can be accessed through a custom domain. For example, I accessed `https://my_cdn_domain/index.php?filename=Microsoft.png&width=100&height=100` in my browser to see the effect.
 
 # CDN Configuration in Azure China Region
-There are some differences in the CDN service between the Azure China region and the Azure overseas region, mainly in certificate management. The CDN service in the Azure China region does not support certificate management for custom domains and can only manage certificates through Azure Key Vault. Therefore, we need to create a certificate in Azure Key Vault first, and then select the existing certificate in the CDN Endpoint configuration. The configuration for Blob Storage and App Service remains unchanged.
+There are some differences in the CDN service between the Azure China region and the Azure overseas region, mainly in certificate management. The CDN service in the Azure China region does not support certificate management for custom domains and can only manage certificates through Azure Key Vault. Therefore, we need to create a certificate in Azure Key Vault first, and then select the existing certificate in the CDN Endpoint configuration. The configuration for Blob Storage and App Service remains unchanged. The overall architecture diagram is a bit more complicated.
+
+![Azure China architecture](doc/image-process-cn-arch.png)
 
 ## Register an Application in Microsoft Entra ID
 
