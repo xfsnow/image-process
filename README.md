@@ -28,13 +28,13 @@ php -S localhost:8000
 ```
 to run the local test site. Open `http://localhost:8000/?filename=Microsoft.png&width=100&height=100` in a browser to see the effect of image processing.
 
-# App Service 部署
+# App Service Deployment
 
-参考官方文档创建一个 App Service 实例，海外 Azure 支持免费档，足够我们测试和演示使用了。创建好的 App Service 实例所在资源组和名称记录下来，启用一个本地 Shell 保存为2个常量方便后续使用命令行部署。 
+Refer to the official documentation to create an App Service instance. Azure supports a free tier for testing and demonstration purposes. Record the resource group and name of the created App Service instance and save them as two constants in a local shell for later use in command-line deployment.
 
-把前面保存的Blob存储容器的连接字符串和名称设置成 App Service的应用设置项目，可参考[官方文档](https://docs.microsoft.com/azure/app-service/configure-common#configure-app-settings)。
+Set the connection string and name of the saved Blob storage container as App Service application settings. Refer to the [official documentation](https://docs.microsoft.com/azure/app-service/configure-common#configure-app-settings) for guidance.
 
-最后把代码打包部署上去即可。
+Finally, package and deploy the code.
 
 ```
 RESOURCE_GROUP=my_resource_group
@@ -47,121 +47,125 @@ az webapp config appsettings set -g $RESOURCE_GROUP -n $WEBAPP_NAME --settings A
 zip -r deploy.zip .
 az webapp deploy -g $RESOURCE_GROUP -n $WEBAPP_NAME --src-path deploy.zip --type zip
 ```
-App Servie PHP 8.2 版本直接支持 GD 库，无需安装。
+App Service PHP 8.2 supports GD library directly, so there is no need to install it.
 
-到此，我们已经完成了一个简单的图片处理应用的开发和部署，可以在浏览器中访问 `https://my_app_service_name.azurewebsites.net/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。更多图片处理的效果及参数，请参见[源码](index.php)。
+At this point, we have completed the development and deployment of a simple image processing application. You can view the result by accessing `https://my_app_service_name.azurewebsites.net/index.php?filename=Microsoft.png&width=100&height=100` in a browser. For more image processing effects and parameters, please refer to the [source code](index.php).
 
-接下来就是配置 CDN 服务，让图片处理应用能够通过 CDN 服务提供的功能，实现图片处理的加速。
+Next, we will configure a CDN service to accelerate image processing using the features provided by the CDN service.
 
-# 配置 CDN 服务
-先确认 CDN 服务已经注册为 resource provider。先到订阅的 Settings 找到 Resource provider，然后搜索 CDN，如果没有找到，点击 Register 按钮注册。
+# Configure CDN Service
 
-![注册 CDN 服务为 Azure resource provider](doc/cdn-register.webp)
+First, confirm that the CDN service has been registered as a resource provider. Go to Settings in your subscription and find Resource provider. Then search for CDN. If you cannot find it, click the Register button to register it.
 
-创建CDN实例，在 Offering 页点 Explore other offerings，再点 Azure CDN Standard from Microsoft (classic) 。
-![创建 Azure CDN 1](doc/azure-cdn1.png)
-再按提示选择订阅、资源组，填写 CDN profile名称等即可。
+![Register CDN service as an Azure resource provider](doc/cdn-register.webp)
 
-![创建 Azure CDN 2](doc/azure-cdn2.png)
+Create a CDN instance. On the Offering page, click Explore other offerings, and then click Azure CDN Standard from Microsoft (classic).
 
-CDN profile 创建好后，添加一个 Endpoint。在 CDN Profile 的 overview 页，右边主窗格点 +Endpoint 按钮，按提示填写 Endpoint 名称如`my_cdn_endpoint`、源站类型选择 `Web App`。
+![Create Azure CDN 1](doc/azure-cdn1.png)
 
-Origin hostname 从下拉菜单中选择前面部署好的 App Service 实例，比如 `my_app_service_name.azurewebsites.net`。其它的保持默认，点击最底下的 Add 按钮。
+Follow the prompts to select the subscription, resource group, and CDN profile name, and so on.
 
-![创建 Azure CDN 3](doc/azure-cdn3.png)
+![Create Azure CDN 2](doc/azure-cdn2.png)
 
-现在我们的图片处理都是通过参数来控制的，所以需要在 CDN Endpoint 的配置里把每个查询字符串的参数分别缓存。在 CDN Endpoint 的左侧导航菜单找到 Setting 下的 Caching Rules，右边主窗格点 Query string caching behavior菜单选择 Cache every unique URL，点击最上面的 Save 按钮。
+After creating the CDN profile, add an Endpoint. On the overview page of the CDN profile, click the +Endpoint button on the right-hand pane, and follow the prompts to fill in the Endpoint name, such as `my_cdn_endpoint`, and select the source type as `Web App`.
 
-![创建 Azure CDN 4](doc/azure-cdn4.png)
+Select the App Service instance that was deployed earlier, such as `my_app_service_name.azurewebsites.net`, from the drop-down menu for Origin hostname. Keep the other settings as default and click the Add button at the bottom.
 
-配置 CDN 的 Rules engine，这里使用简单的图片缓存 1小时的规则。在 Setting 下点击 Rules Engine，在 Global 右边点击 + Add action，在下拉菜单中选择 Cache Expiration。
+![Create Azure CDN 3](doc/azure-cdn3.png)
 
-在 Cache behavior 菜单选择 Set if missing，然后 Days 填写 1，然后点击上面的 Save 按钮即可。
+Now that our image processing is controlled by parameters, we need to cache each query string parameter separately in the CDN Endpoint configuration. In the left-hand navigation menu of the CDN Endpoint, go to Settings and then Caching Rules. On the right-hand pane, select Cache every unique URL from the Query string caching behavior menu, and click the Save button at the top.
 
-![配置 CDN 的 Rules engine](doc/azure-cdn5.png)
+![Create Azure CDN 4](doc/azure-cdn4.png)
 
-到此，CDN 服务已经配置好了，可以在浏览器中访问 `https://my_cdn_endpoint.azureedge.net/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。
+Configure the Rules engine of the CDN. Here, we use a simple rule to cache images for one hour. Under Settings, click Rules Engine, and then click + Add action on the right-hand pane of Global. Select Cache Expiration from the drop-down menu.
 
-## 添加自定义域名
+Select Set if missing from the Cache behavior menu, enter 1 for Days, and then click the Save button at the top.
 
-要添加自定义域名，首先要在 DNS 服务商那里添加一个 CNAME 记录，指向 CDN Endpoint 的自定义域名。比如我在 阿里云的域名解析控制台添加了一个 CNAME 记录，指向 `my_cdn_endpoint.azureedge.net`。
+![Configure CDN Rules engine](doc/azure-cdn5.png)
 
-然后回到 Azure CDN Endpoint 的配置里，找到 Custom domains，点击 +Custom domain 按钮，按提示填写自定义域名，点击最底下的 Add 按钮。
+At this point, the CDN service has been configured. You can view the result by accessing `https://my_cdn_endpoint.azureedge.net/index.php?filename=Microsoft.png&width=100&height=100` in a browser.
 
-![添加 CDN 的自定义域名](doc/azure-cdn6.png)
+## Adding Custom Domain
 
-新添加上的自定义域名，其 Custom HTTPS 状态为 disabled。点击这条记录，进入 Custom domain HTTPS 管理页。
-点击 On 按钮；
-Certificate management type 选择 CDN managed；
-Minimum TLS version 选择 TLS 1.2。
-点击上面的 Save 按钮。默认情况下 Azure 会托管地为自定义域名申请一个证书，这个过程可能需要几分钟时间，请耐心等待下成的状态逐个变成完成。
+To add a custom domain, first add a CNAME record at the DNS service provider, pointing to the custom domain of the CDN endpoint. For example, I added a CNAME record in the Alibaba Cloud Domain Resolution Console, pointing to `my_cdn_endpoint.azureedge.net`.
 
-![配置 CDN 的自定义域名](doc/azure-cdn7.png)
+Then go back to the Azure CDN Endpoint configuration, find Custom domains, click the +Custom domain button, fill in the custom domain as prompted, and click the Add button at the bottom.
 
-到此，我们的图片处理应用已经可以通过自定义域名访问了，比如我在浏览器中访问 `https://my_cdn_domain/index.php?filename=Microsoft.png&width=100&height=100` 查看效果。
+![Add custom domain for CDN](doc/azure-cdn6.png)
 
-# Azure 中国区域的CDN配置
-Azure 中国区域和 Azure 海外区域的 CDN 服务有一些差异，主要是在证书管理上。Azure 中国区域的 CDN 服务不支持自定义域名的证书管理，只能通过 Azure Key Vault 管理证书。所以我们需要先在 Azure Key Vault 里创建一个证书，然后在 CDN Endpoint 的配置里选择现有证书。前述的 Blob Storage 和 App Service 的配置不变。
+The newly added custom domain has a Custom HTTPS status of disabled. Click on this record to enter the Custom domain HTTPS management page.
+Click the On button;
+Select CDN managed for Certificate management type;
+Select TLS 1.2 for Minimum TLS version.
+Click the Save button above. By default, Azure will host a certificate for the custom domain, which may take a few minutes. Please wait patiently for the status to change to completed one by one.
 
-## 在 Microsoft Entra ID 中注册一个应用
+![Configure custom domain for CDN](doc/azure-cdn7.png)
 
-在 Microsoft Entra ID 中左侧导航链接中 Manage 下点击 App registrations，然后点击 New registration 按钮，按提示填写应用名称比如“CDN HTTPS”。
-Supported account types 选择 Accounts in this organizational directory only。
-点击 Register 按钮。
+At this point, our image processing application can be accessed through a custom domain. For example, I accessed `https://my_cdn_domain/index.php?filename=Microsoft.png&width=100&height=100` in my browser to see the effect.
 
-![在 Microsoft Entra ID 中注册一个应用](doc/cn-cdn1.png)
+# CDN Configuration in Azure China Region
+There are some differences in the CDN service between the Azure China region and the Azure overseas region, mainly in certificate management. The CDN service in the Azure China region does not support certificate management for custom domains and can only manage certificates through Azure Key Vault. Therefore, we need to create a certificate in Azure Key Vault first, and then select the existing certificate in the CDN Endpoint configuration. The configuration for Blob Storage and App Service remains unchanged.
 
-注册好的应用点击到 Overview 页，记录下 Application (client) ID。
+## Register an Application in Microsoft Entra ID
 
-然后点击左侧导航链接的 Certificates & secrets，点击 New client secret 按钮，按提示填写 Secret description，Expires 选择 730 days，点击 Add 按钮。
+In the left navigation link of Microsoft Entra ID, click App registrations under Manage, and then click the New registration button. Fill in the application name, such as "CDN HTTPS", as prompted.
+Select Accounts in this organizational directory only for Supported account types.
+Click the Register button.
 
-![给AAD应用添加 secret](doc/cn-cdn2.png)
-添加成功后，立刻在其 Value 处点击复制图标，把 Secret value 复制到剪贴板。注意这个 Secret value 只会显示一次，所以一定要立刻复制保存好。
+![Register an application in Microsoft Entra ID](doc/cn-cdn1.png)
 
-![给AAD应用添加 secret](doc/cn-cdn3.png)
+On the Overview page of the registered application, record the Application (client) ID.
 
-## 在 Azure Key Vault 里创建一个证书
-参考官方文档[创建一个 Key Vault](https://docs.azure.cn/zh-cn/key-vault/general/quick-create-portal)，然后[上传一个用于 CDN 域名的证书官方文档](https://docs.microsoft.com/azure/key-vault/certificates/quick-create-portal#create-a-certificate)。
+Then click Certificates & secrets in the left navigation link, click the New client secret button, fill in the Secret description as prompted, select 730 days for Expires, and click the Add button.
 
-## 在 Key Vault 给 Entra 应用赋权
+![Add secret to AAD application](doc/cn-cdn2.png)
 
-在 Key Vault 左侧导航链接点击 Access Policies，点击 + Create 按钮，在 Create an access policy 页把 Key Permissions、Secret Permissions、Certificate Permissions 都选中，然后点击 Next 按钮。
+After successfully adding, immediately click the copy icon at its Value to copy the Secret value to the clipboard. Note that this Secret value will only be displayed once, so be sure to copy and save it immediately.
 
-![设置 Access Policies](doc/cn-cdn4.png)
+![Add secret to AAD application](doc/cn-cdn3.png)
 
-在 2 Principal 页点击 Select principal 按钮，然后在搜索框中输入应用名称，比如“CDN HTTPS”，然后点击搜索结果中的应用名称，点击 Select 按钮。然后点击 Next 按钮。
+## Create a certificate in Azure Key Vault
+Refer to the official documentation [Create a Key Vault](https://docs.azure.cn/en-us/key-vault/general/quick-create-portal), and then [Upload a certificate for a CDN domain](https://docs.microsoft.com/en-us/azure/key-vault/certificates/quick-create-portal#create-a-certificate).
 
-![选择 principal](doc/cn-cdn5.png)
+## Grant Entra application access in Key Vault
 
-Application 页不用修改，直接点击 Review + create 按钮，然后点击 Create 按钮。
+Click Access Policies on the left navigation link of Key Vault, click the + Create button, select Key Permissions, Secret Permissions, and Certificate Permissions on the Create an access policy page, and then click the Next button.
 
-回到 Key Vault 的 Overview 页，记录下 Vault URI。
+![Set Access Policies](doc/cn-cdn4.png)
 
-## 配置 CDN Profile
-创建 CDN Profile 的操作和海外 Azure 相同，也需要先到自己的 DNS 解析处添加 CNAME 记录，把自定义域名指向 CDN Endpoint 的自定义域名。之后添加 Endpoint 的操作不相同。点击 + Endpoint 按钮，按提示填写 Custom domain 、ICP number和Origin。
+On the 2 Principal page, click the Select principal button, then enter the application name in the search box, such as "CDN HTTPS", click the application name in the search results, and then click the Select button. Then click the Next button.
 
-Acceleration type 选择 Web acceleration，Origin domain type 选择 Web App，Origin domain 的下拉菜单选择已经部署好的 App Service。点击 App 按钮。
+![Select principal](doc/cn-cdn5.png)
 
-![创建 CDN Endpoint](doc/cn-cdn6.png)
+The Application page does not need to be modified, click the Review + create button directly, and then click the Create button.
 
-与海外 Azure 不同之处，在创建 CDN Profile 后，需要点击主窗格的 Manage 按钮去继续配置自定义域名的 SSL 证书。
+Back to the Overview page of Key Vault, record the Vault URI.
 
-![打开 Manage](doc/cn-cdn7.png)
+## Configure CDN Profile
+The operation of creating a CDN Profile is the same as that of overseas Azure. You also need to add a CNAME record to your DNS resolution first, and point the custom domain name to the custom domain name of the CDN Endpoint. The operation of adding an Endpoint is different. Click the + Endpoint button, fill in Custom domain, ICP number, and Origin as prompted.
 
-点击左侧导航菜单最下面的“配置”，在主窗格中密钥保管库 DNS 名称填写前面记录的 Vault URI，Azure Active Directory 客户端 ID 填写前面记录的 Application (client) ID，Azure Active Directory 密码填写前面记录的 Secret value，然后点击 Save 按钮。
+Select Web acceleration for Acceleration type, select Web App for Origin domain type, and select the App Service that has been deployed from the drop-down menu of Origin domain. Click the App button.
 
-![配置 CDN 的密钥保管库](doc/cn-cdn8.png)
+![Create CDN Endpoint](doc/cn-cdn6.png)
 
-通过上述配置，CDN 服务就可以从 Key Vault 里获取证书了。然后点击左侧导航菜单“安全管理”下点击“证书管理”，点击 “+添加一张 SSL 证书”按钮。按提示填写名称。
-在证书源中选择“使用已有证书”。
-在证书的下拉菜单中选择 CDN 域名需要Key Vault中保存的证书。
-绑定域名的下拉菜单中选择“全部”。最后点击下面的“创建”按钮。
+Unlike overseas Azure, after creating a CDN Profile, you need to click the Manage button in the main pane to continue configuring the SSL certificate for the custom domain name.
 
-![配置 CDN 的证书](doc/cn-cdn9.png)
+![Open Manage](doc/cn-cdn7.png)
 
-这里，再点击左侧导航菜单中的“域名管理”，可以看到自定义域名的“是否启用 HTTPS”为“是”，表示 SSL 证书已配置成功。
+Click the "Configuration" at the bottom of the left navigation menu, fill in the Vault URI recorded earlier in the Key Vault DNS name of the key vault, fill in the Application (client) ID recorded earlier in the Azure Active Directory client ID, fill in the Secret value recorded earlier in the Azure Active Directory password, and then click the Save button.
+
+![Configure Key Vault for CDN](doc/cn-cdn8.png)
+
+With the above configuration, the CDN service can obtain the certificate from Key Vault. Then click "Certificate Management" under "Security Management" on the left navigation menu, click the "+ Add an SSL certificate" button. Fill in the name as prompted.
+Select "Use existing certificate" in the certificate source.
+In the drop-down menu of the certificate, select the certificate saved in Key Vault that CDN domain name needs.
+Select "All" in the drop-down menu of the bound domain name. Finally, click the "Create" button below.
+
+![Configure CDN certificate](doc/cn-cdn9.png)
+
+Here, click "Domain Management" in the left navigation menu again, you can see that the "Is HTTPS enabled" of the custom domain name is "Yes", indicating that the SSL certificate has been successfully configured.
 
 # TODO
-1. 更多图片处理功能
-2. 文件不存在的检测
-3. 图片路径和图片处理参数都放到REQUEST_URI上。
+1. More image processing functions
+2. Detection of non-existent files
+3. Put the image path and image processing parameters on REQUEST_URI.
