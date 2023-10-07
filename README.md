@@ -1,3 +1,5 @@
+🌏 English | [中文](README.cn.md) 
+
 # Responsive Image Processing
 
 When developing web applications, we often save the original images and then generate various sizes of thumbnails, as well as perform simple operations such as flipping, cropping, and rotating on the images. This use case is very common, so much so that mainstream cloud platforms provide PaaS services that add image processing logic based on CDN services, achieving different image processing functions through different parameters. For example, the CDN service in Azure China region provides such a feature - [Azure CDN Image Processing](https://docs.azure.cn/zh-cn/cdn/cdn-image-processing).
