@@ -167,6 +167,7 @@ Acceleration type 选择 Web acceleration，Origin domain type 选择 Web App，
 这里，再点击左侧导航菜单中的“域名管理”，可以看到自定义域名的“是否启用 HTTPS”为“是”，表示 SSL 证书已配置成功。
 
 # TODO
+0. CDN 绑定域名证书的自动轮换
 1. 把 AAD 和Key Vault 画进架构图
 2. 更多图片处理功能
 3. 文件不存在的检测
