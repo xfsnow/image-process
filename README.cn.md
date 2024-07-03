@@ -166,8 +166,23 @@ Acceleration type 选择 Web acceleration，Origin domain type 选择 Web App，
 
 这里，再点击左侧导航菜单中的“域名管理”，可以看到自定义域名的“是否启用 HTTPS”为“是”，表示 SSL 证书已配置成功。
 
+## 证书到期时手工更新
+我现在是自己手工创建的免费证书，有效期只有90天，证书临近到期时需要在 CDN 管理中把证书手工更新。
+手工更新证书，先在 Microsoft Azure CDN 管理控制台的证书管理中“添加一张SSL证书”，选择 Key Vault 中已经添加的有效期足够的新证书。
+然后到“域名管理”中，找到“HTTPS（客户提供证书）”选项卡，点击 “绑定证书”旁边的笔形图标。
+![编辑绑定证书](https://docs.azure.cn/en-us/cdn/media/cdn-httpsimage/certificate_addboundchoose_en1.png)
+在下面的“名称”中选择刚刚在证书管理中添加的新证书，确认“有效日期”已经更换成新的以后，点击最底下的“保存”按钮即可。
+
+最后可以再回到证书管理，把之前即将过期的证书删除掉。
+
+
+## CDN 绑定域名证书的自动轮换
+https://learn.microsoft.com/zh-cn/azure/key-vault/certificates/tutorial-rotate-certificates#update-certificate-lifecycle-attributes
+从官方文档确认，只有“通过与 Key Vault 合作的 CA 创建的证书”才能配置存储证书的生命周期从而支持CDN自动更新证书周期。
+我现在是自己手工创建的免费证书，所以还不能启用这个功能。
+
+
 # TODO
-0. CDN 绑定域名证书的自动轮换
 1. 把 AAD 和Key Vault 画进架构图
 2. 更多图片处理功能
 3. 文件不存在的检测
