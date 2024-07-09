@@ -169,7 +169,25 @@ Select "All" in the drop-down menu of the bound domain name. Finally, click the 
 
 Here, click "Domain Management" in the left navigation menu again, you can see that the "Is HTTPS enabled" of the custom domain name is "Yes", indicating that the SSL certificate has been successfully configured.
 
+## Manual Certificate Renewal
+I am currently using a self-created free certificate, which is valid for only 90 days. When the certificate is about to expire, it needs to be manually updated in the CDN management.
+To manually update the certificate, first go to the certificate management in the Microsoft Azure CDN management console and "Add an SSL certificate", selecting the new certificate with a sufficient validity period that has already been added to the Key Vault.
+Then go to "Domain Management", find the "HTTPS (Customer Provided Certificate)" tab, and click the pencil icon next to "Bind Certificate".
+![Edit Bind Certificate](https://docs.azure.cn/en-us/cdn/media/cdn-httpsimage/certificate_addboundchoose_en1.png)
+In the "Name" field below, select the new certificate that was just added in the certificate management, confirm that the "Validity Date" has been changed to the new one, and then click the "Save" button at the bottom.
+
+Finally, you can go back to certificate management and delete the previously expiring certificate.
+
+
+## Automatic Rotation of CDN Bound Domain Certificates
+https://learn.microsoft.com/zh-cn/azure/key-vault/certificates/tutorial-rotate-certificates#update-certificate-lifecycle-attributes
+
+According to the official documentation, only certificates created by a CA in cooperation with Key Vault can be configured to store the certificate lifecycle to support automatic certificate renewal for CDN.
+I am currently using a self-created free certificate, so I cannot enable this feature yet.
+
+
 # TODO
-1. More image processing functions
-2. Detection of non-existent files
-3. Put the image path and image processing parameters on REQUEST_URI.
+1. Add AAD and Key Vault to the architecture diagram
+2. More image processing features
+3. Detection of non-existent files
+4. Put both image paths and image processing parameters on REQUEST_URI.

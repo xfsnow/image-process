@@ -178,6 +178,8 @@ Acceleration type 选择 Web acceleration，Origin domain type 选择 Web App，
 
 ## CDN 绑定域名证书的自动轮换
 https://learn.microsoft.com/zh-cn/azure/key-vault/certificates/tutorial-rotate-certificates#update-certificate-lifecycle-attributes
+
+
 从官方文档确认，只有“通过与 Key Vault 合作的 CA 创建的证书”才能配置存储证书的生命周期从而支持CDN自动更新证书周期。
 我现在是自己手工创建的免费证书，所以还不能启用这个功能。
 
