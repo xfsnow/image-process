@@ -1,11 +1,13 @@
 <?php
+// 参考 https://segmentfault.com/q/1010000043329246
+
 class UriCode {
     // 可用字符表
     private static $inputChars = '0123456789abcdefghijklmnopqrstuvwxyz';
     private static $outputChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_.~';
 
     // 编码方法
-    public static function encode($input) {
+    public static function compress($input) {
         if (empty($input)) {
             return '';
         }
@@ -36,7 +38,7 @@ class UriCode {
     }
 
     // 解码方法
-    public static function decode($input) {
+    public static function decompress($input) {
         if (empty($input)) {
             return '';
         }

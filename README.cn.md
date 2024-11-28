@@ -33,7 +33,7 @@ php -S localhost:8000
 
 # App Service 部署
 
-参考官方文档创建一个 App Service 实例，海外 Azure 支持免费档，足够我们测试和演示使用了。创建好的 App Service 实例所在资源组和名称记录下来，启用一个本地 Shell 保存为2个常量方便后续使用命令行部署。 
+参考官方文档创建一个 App Service 实例，海外 Azure 支持免费档，足够我们测试和演示使用了。创建好的 App Service 实例所在资源组和名称记录下来，启用一个本地 Shell 保存为2个常量方便后续使用命令行部署。
 
 把前面保存的Blob存储容器的连接字符串和名称设置成 App Service的应用设置项目，可参考[官方文档](https://docs.microsoft.com/azure/app-service/configure-common#configure-app-settings)。
 
@@ -189,3 +189,9 @@ https://learn.microsoft.com/zh-cn/azure/key-vault/certificates/tutorial-rotate-c
 2. 更多图片处理功能
 3. 文件不存在的检测
 4. 图片路径和图片处理参数都放到REQUEST_URI上。
+
+## 本地测试环境
+```shell
+C:\Service\php>php-cgi.exe -b 127.0.0.1:9000 -c php.ini
+C:\Service\nginx-1.27.3>nginx -s reload
+```
