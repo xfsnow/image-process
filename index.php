@@ -13,21 +13,21 @@ $blobClient = BlobRestProxy::createBlobService($connectionString);
 
 // 处理请求
 $filePath = $_SERVER['REQUEST_URI'];
-$filename = $_REQUEST['filename'];
+$filename = isset($_REQUEST['filename']) && !empty($_REQUEST['filename']) ? $_REQUEST['filename'] : '';
 $width = isset($_REQUEST['width']) ? $_REQUEST['width'] :'';
 $height = isset($_REQUEST['height']) ? $_REQUEST['height'] :'';
 $flip = isset($_REQUEST['flip']) ? $_REQUEST['flip'] :'';
 $crop = isset($_REQUEST['crop']) ? $_REQUEST['crop'] :'';
 $rotate = isset($_REQUEST['rotate']) ? $_REQUEST['rotate'] :'';
 $supportedOutputTypes = array('png', 'jpeg', 'gif');
-$outputType = isset($_REQUEST['outputtype']) && in_array($_REQUEST['outputtype'], $supportedOutputTypes) ? $_REQUEST['outputtype'] :'png'; 
+$outputType = isset($_REQUEST['outputtype']) && in_array($_REQUEST['outputtype'], $supportedOutputTypes) ? $_REQUEST['outputtype'] :'png';
 $outputImageMethod='image' . $outputType;
 $outputImageHeader='Content-Type: image/' . $outputType;
 // 从 Azure Blob Storage 中读取图像文件内容，文件名是 $filename
 try {
     $getBlobResult = $blobClient->getBlob($blobContainerName, $filename);
     $content = stream_get_contents($getBlobResult->getContentStream());
-    
+
     $outputImage = imagecreatefromstring($content);
     $originial_width = imagesx($outputImage);
     $originial_height = imagesy($outputImage);
@@ -37,7 +37,7 @@ try {
         imagecopyresampled($resizedImage, $outputImage, 0, 0, 0, 0, $width, $height, $originial_width, $originial_height);
         $outputImage = $resizedImage;
     }
-    
+
     // 如果 flip 包含 | 或 -，则翻转图像
     if (false !== strpos($flip, '|') || false !== strpos($flip, '-'))
     {
@@ -70,10 +70,10 @@ try {
             $crop_y = $cropParams[1];
             $crop_w = $cropParams[2];
             $crop_h = $cropParams[3];
-        
+
             // 使用 GD 库裁剪图像
             $croppedImage = imagecreatetruecolor($crop_w, $crop_h);
-            imagecopy($croppedImage, $outputImage, 0, 0, $crop_x, $crop_y, $crop_w, $crop_h);    
+            imagecopy($croppedImage, $outputImage, 0, 0, $crop_x, $crop_y, $crop_w, $crop_h);
             $outputImage = $croppedImage;
         }
         else {
@@ -102,7 +102,7 @@ try {
         $outputImage = $rotatedImage;
     }
 
-    // 读取调整大小后的图像内容 
+    // 读取调整大小后的图像内容
     ob_start();
     $outputImageMethod($outputImage);
     $imageData = ob_get_contents();
