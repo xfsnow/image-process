@@ -1,4 +1,4 @@
-🌏 English | [中文](README.cn.md) 
+🌏 English | [中文](README.cn.md)
 
 # Responsive Image Processing
 
@@ -169,25 +169,45 @@ Select "All" in the drop-down menu of the bound domain name. Finally, click the 
 
 Here, click "Domain Management" in the left navigation menu again, you can see that the "Is HTTPS enabled" of the custom domain name is "Yes", indicating that the SSL certificate has been successfully configured.
 
-## Manual Certificate Renewal
-I am currently using a self-created free certificate, which is valid for only 90 days. When the certificate is about to expire, it needs to be manually updated in the CDN management.
-To manually update the certificate, first go to the certificate management in the Microsoft Azure CDN management console and "Add an SSL certificate", selecting the new certificate with a sufficient validity period that has already been added to the Key Vault.
-Then go to "Domain Management", find the "HTTPS (Customer Provided Certificate)" tab, and click the pencil icon next to "Bind Certificate".
+## Manually Update Certificate When It Expires
+I am currently using a manually created free certificate, which is only valid for 90 days. When the certificate is about to expire, it needs to be manually updated in the CDN management.
+
+To manually update the certificate:
+1. Add a new certificate with a sufficient validity period in Azure Key Vault under Certificates.
+2. In the Azure CDN management console, go to certificate management and "Add an SSL certificate", selecting the newly added certificate.
+3. Go to "Domain Management", find the "HTTPS (Customer Provided Certificate)" tab, and click the pencil icon next to "Bind Certificate".
 ![Edit Bind Certificate](https://docs.azure.cn/en-us/cdn/media/cdn-httpsimage/certificate_addboundchoose_en1.png)
-In the "Name" field below, select the new certificate that was just added in the certificate management, confirm that the "Validity Date" has been changed to the new one, and then click the "Save" button at the bottom.
+In the "Name" field below, select the newly added certificate from certificate management, confirm that the "Valid Date" has been updated to the new one, and click the "Save" button at the bottom.
 
 Finally, you can go back to certificate management and delete the previously expiring certificate.
-
 
 ## Automatic Rotation of CDN Bound Domain Certificates
 https://learn.microsoft.com/zh-cn/azure/key-vault/certificates/tutorial-rotate-certificates#update-certificate-lifecycle-attributes
 
-According to the official documentation, only certificates created by a CA in cooperation with Key Vault can be configured to store the certificate lifecycle to support automatic certificate renewal for CDN.
-I am currently using a self-created free certificate, so I cannot enable this feature yet.
+According to the official documentation, only "certificates created by a CA working with Key Vault" can be configured to store the certificate lifecycle to support automatic CDN certificate updates.
+I am currently using a manually created free certificate, so this feature cannot be enabled yet.
 
+# Multiple CDNs Returning to a Single Origin
+When creating an Endpoint in Azure China CDN, you can only select from existing App Services, but after creation, you can modify it to any reachable origin in China. This way, our overall architecture can be further simplified by configuring only one set of App Service and Blob storage, and configuring 2 CDNs in overseas and China. Here, taking App Service and Blob storage deployed overseas as an example, you only need to modify the Azure China CDN configuration. Since the domain names are all configured on the CDN, all App Services do not need to customize domain names anymore, making it simpler.
+
+First, go to the Azure overseas console to find the default domain name of the App Service, go to the Overview page of the App Service, and record the default domain name.
+
+![View and Record the Default Domain Name of Overseas App Service](doc/appservice-default-domain.png)
+
+Then go to the Azure China CDN console, find the custom domain name we have created in **Domain Management**, click it to enter edit mode, and fill in the **Origin Domain Name** and **HOST Header** with the previously recorded overseas App Service domain name. Click save, CDN operations take some time to complete, please be patient.
+
+![View and Record the Default Domain Name of Overseas App Service](doc/cn-cdn-origin.png)
 
 # TODO
-1. Add AAD and Key Vault to the architecture diagram
-2. More image processing features
-3. Detection of non-existent files
-4. Put both image paths and image processing parameters on REQUEST_URI.
+- [x] Add AAD and Key Vault to the architecture diagram
+- [x] More image processing features
+- [ ] Detection of file non-existence
+- [ ] Put image paths and image processing parameters on REQUEST_URI.
+
+# Unified Image Path and Image Processing Parameters in Filename, No Longer Using Query String
+
+## Local Test Environment
+```shell
+C:\Service\php>php-cgi.exe -b 127.0.0.1:9000 -c php.ini
+C:\Service\nginx-1.27.3>nginx -s reload
+```

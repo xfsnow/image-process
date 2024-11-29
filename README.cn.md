@@ -198,10 +198,13 @@ Azure 中国的 CDN 在创建 Endpoint 时只能从已有的 App Service 中选�
 ![查看并记录海外App Service的默认域名](doc/cn-cdn-origin.png)
 
 # TODO
-1. 把 AAD 和Key Vault 画进架构图
-2. 更多图片处理功能
-3. 文件不存在的检测
-4. 图片路径和图片处理参数都放到REQUEST_URI上。
+- [x] 把 AAD 和Key Vault 画进架构图
+- [x] 更多图片处理功能
+- [ ] 文件不存在的检测
+- [ ] 图片路径和图片处理参数都放到REQUEST_URI上。
+
+
+# 图片路径和图片处理参数统一文件名上，不再使用查询字符串
 
 ## 本地测试环境
 ```shell
