@@ -168,8 +168,11 @@ Acceleration type 选择 Web acceleration，Origin domain type 选择 Web App，
 
 ## 证书到期时手工更新
 我现在是自己手工创建的免费证书，有效期只有90天，证书临近到期时需要在 CDN 管理中把证书手工更新。
-手工更新证书，先在 Microsoft Azure CDN 管理控制台的证书管理中“添加一张SSL证书”，选择 Key Vault 中已经添加的有效期足够的新证书。
-然后到“域名管理”中，找到“HTTPS（客户提供证书）”选项卡，点击 “绑定证书”旁边的笔形图标。
+
+手工更新证书:
+1. Azure Key Vault 中在 Certifates 添加一个新的证书有效期足够的新证书。
+2. 在 Azure CDN 管理控制台的证书管理中“添加一张SSL证书”，选择前面刚刚添加的新证书。
+3. 到“域名管理”中，找到“HTTPS（客户提供证书）”选项卡，点击 “绑定证书”旁边的笔形图标。
 ![编辑绑定证书](https://docs.azure.cn/en-us/cdn/media/cdn-httpsimage/certificate_addboundchoose_en1.png)
 在下面的“名称”中选择刚刚在证书管理中添加的新证书，确认“有效日期”已经更换成新的以后，点击最底下的“保存”按钮即可。
 
@@ -183,6 +186,16 @@ https://learn.microsoft.com/zh-cn/azure/key-vault/certificates/tutorial-rotate-c
 从官方文档确认，只有“通过与 Key Vault 合作的 CA 创建的证书”才能配置存储证书的生命周期从而支持CDN自动更新证书周期。
 我现在是自己手工创建的免费证书，所以还不能启用这个功能。
 
+# 多 CDN 回单一源站
+Azure 中国的 CDN 在创建 Endpoint 时只能从已有的 App Service 中选取，但是创建后就可以自行修改成任意中国网络可达的源站了，这样我们整体架构可以进一步简化成 App Service 和 Blob 存储只配置一套，在海外和中国配置2个 CDN 即可。这里以 App Service 和 Blob 存储部署在海外为例，只需要再修改 Azure 中国的 CDN 配置。由于域名都配置在 CDN 上，所以所有 App Service 都不用再定制域名了，这样更简单。
+
+先到 Azure 海外控制台找到 App Service 的默认域名，找到 App Service 的 Overview 页，记录下默认域名。
+
+![查看并记录海外App Service的默认域名](doc/appservice-default-domain.png)
+
+然后到 Azure 中国的 CDN 控制台，在 **域名管理** 找到我们已经创建的自定义域名，点击它进入编辑模式，在**属性**选项页，把**源站域名**和 **HOST头** 都填写成刚才记下的海外 App Service 的域名。点击保存，CDN操作需要一些时间完成，请耐心等待。
+
+![查看并记录海外App Service的默认域名](doc/cn-cdn-origin.png)
 
 # TODO
 1. 把 AAD 和Key Vault 画进架构图
